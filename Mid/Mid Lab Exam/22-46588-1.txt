@@ -1,0 +1,140 @@
+1. Write an assembly program where you must take an Alphabet as input (Consider only capital letter). Show if the given alphabet is a vowel or a consonant.
+
+Answer:
+
+.MODEL SMALL
+.STACK 100H
+.DATA
+    INSTRACTION_MSG DB 'Enter a capital letter: $'
+    INPUT DB ?
+    VOWEL_MSG DB ' is a VOWEL.$'
+    CONS_MSG DB ' is a CONSONANT.$'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
+    MOV AH, 9
+    LEA DX, INSTRACTION_MSG
+    INT 21H
+
+    MOV AH, 1
+    INT 21H
+    MOV INPUT, AL
+
+    CMP INPUT, 'A'
+    JE IS_VOWEL
+    CMP INPUT, 'E'
+    JE IS_VOWEL
+    CMP INPUT, 'I'
+    JE IS_VOWEL
+    CMP INPUT, 'O'
+    JE IS_VOWEL
+    CMP INPUT, 'U'
+    JE IS_VOWEL
+
+    MOV AH, 2
+    MOV DL, 0DH
+    INT 21H
+    MOV DL, 0AH
+    INT 21H
+    
+    MOV AH, 2
+    MOV DL, INPUT
+    INT 21H
+    
+    LEA DX, CONS_MSG
+    JMP DISPLAY
+
+IS_VOWEL:
+    MOV AH, 2
+    MOV DL, 0DH
+    INT 21H
+    MOV DL, 0AH
+    INT 21H
+    
+    MOV AH, 2
+    MOV DL, INPUT
+    INT 21H
+    
+    LEA DX, VOWEL_MSG
+
+DISPLAY:
+    MOV AH, 9
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
+
+
+
+
+2. Write an assembly program where you must print “I love Bangladesh” 5 times. You have put a value of 5 in CL register. For each printing you must decrease the value of CL by 1 and print it along side with the sentence.
+
+Output:
+I love Bangladesh
+4
+I love Bangladesh
+3
+I love Bangladesh
+2
+I love Bangladesh
+1
+I love Bangladesh
+0
+
+Answer:
+
+.MODEL SMALL
+.STACK 100H
+.DATA
+    MSG DB 'I love Bangladesh$'
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
+    MOV CL, 5
+
+PRINT_MSG_AND_CL_VALUE:
+                      LEA DX, MSG
+                      MOV AH, 9
+                      INT 21H
+                    
+                      MOV AH, 2
+                      MOV DL, 0DH
+                      INT 21H
+                      MOV DL, 0AH
+                      INT 21H
+                    
+                      DEC CL
+                    
+                      MOV AL, CL
+                      ADD AL, 48
+                      MOV DL, AL
+                      MOV AH, 2
+                      INT 21H
+                    
+                      CMP CL, 0
+                      JE EXIT
+                    
+                      MOV AH, 2
+                      MOV DL, 0DH
+                      INT 21H
+                      MOV DL, 0AH
+                      INT 21H
+                    
+                      JMP PRINT_MSG_AND_CL_VALUE
+
+EXIT:
+    MOV AH, 4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN

@@ -1,0 +1,68 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+    INSTRACTION_MSG DB 'Enter a capital letter: $'
+    INPUT DB ?
+    VOWEL_MSG DB ' is a VOWEL.$'
+    CONS_MSG DB ' is a CONSONANT.$'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
+    MOV AH, 9
+    LEA DX, INSTRACTION_MSG
+    INT 21H
+
+    MOV AH, 1
+    INT 21H
+    MOV INPUT, AL
+
+    CMP INPUT, 'A'
+    JE IS_VOWEL
+    CMP INPUT, 'E'
+    JE IS_VOWEL
+    CMP INPUT, 'I'
+    JE IS_VOWEL
+    CMP INPUT, 'O'
+    JE IS_VOWEL
+    CMP INPUT, 'U'
+    JE IS_VOWEL
+
+    MOV AH, 2
+    MOV DL, 0DH
+    INT 21H
+    MOV DL, 0AH
+    INT 21H
+    
+    MOV AH, 2
+    MOV DL, INPUT
+    INT 21H
+    
+    LEA DX, CONS_MSG
+    JMP DISPLAY
+
+IS_VOWEL:
+    MOV AH, 2
+    MOV DL, 0DH
+    INT 21H
+    MOV DL, 0AH
+    INT 21H
+    
+    MOV AH, 2
+    MOV DL, INPUT
+    INT 21H
+    
+    LEA DX, VOWEL_MSG
+
+DISPLAY:
+    MOV AH, 9
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
