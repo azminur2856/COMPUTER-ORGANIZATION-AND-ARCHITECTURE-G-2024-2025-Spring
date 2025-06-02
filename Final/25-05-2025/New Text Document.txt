@@ -1,0 +1,108 @@
+.model small
+.stack 100h
+
+.data
+a db 0          ; count zeros
+b db 0          ; count ones
+msg0 db 'Count of zeros: $'
+msg1 db 'Count of ones: $'
+msgp db 'Parity Flag (PF): $'
+newline db 0Dh,0Ah,'$' 
+evenmsg db 'Even parity',0Dh,0Ah,'$'
+oddmsg db 'Odd parity',0Dh,0Ah,'$'
+
+.code
+main proc
+    mov ax,@data
+    mov ds,ax
+    
+    xor bx,bx        ; will store the bits input as a word
+    mov cx,16        ; max 16 bits
+    
+input_start:
+    mov ah,01h       ; read char from stdin, no echo
+    int 21h
+    
+    cmp al,0Dh       ; Enter key = done input
+    je process_bits
+    
+    cmp al,'0'
+    je count_zero
+    cmp al,'1'
+    je count_one
+    ; if not 0 or 1, ignore and repeat
+    jmp input_start
+    
+count_zero:
+    inc a            ; increment zero count
+    shl bx,1         ; shift bx left by 1, bit 0
+    loop input_start
+    jmp input_start
+    
+count_one:
+    inc b            ; increment one count
+    shl bx,1
+    or bx,1          ; set LSB to 1
+    loop input_start
+    jmp input_start
+    
+process_bits:
+    ; Display count zeros
+    mov dx, offset msg0
+    mov ah,09h
+    int 21h
+    
+    mov al, a
+    add al, '0'       ; convert count to ASCII digit (works for counts <10)
+    mov dl, al
+    mov ah,02h
+    int 21h
+    
+    mov dx, offset newline
+    mov ah,09h
+    int 21h
+    
+    ; Display count ones
+    mov dx, offset msg1
+    mov ah,09h
+    int 21h
+    
+    mov al, b
+    add al, '0'
+    mov dl, al
+    mov ah,02h
+    int 21h
+    
+    mov dx, offset newline
+    mov ah,09h
+    int 21h
+    
+    ; Check parity of number of ones (even or odd)
+    mov al, b
+    test al, 1          ; test LSB: 0 = even, 1 = odd
+    
+    mov dx, offset msgp
+    mov ah, 09h
+    int 21h
+    
+    jz pf_even          ; zero LSB means even
+    jnz pf_odd          ; nonzero LSB means odd
+    
+pf_even:
+    mov dx, offset evenmsg
+    mov ah, 09h
+    int 21h
+    jmp done
+    
+pf_odd:
+    mov dx, offset oddmsg
+    mov ah, 09h
+    int 21h
+    jmp done
+    
+done:
+    mov ah,4Ch
+    int 21h
+
+main endp
+end main
